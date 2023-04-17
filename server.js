@@ -1,24 +1,21 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const mongoose = require("mongoose");
-require('dotenv').config()
+const express = require('express');
+const methodOverride = require('method-override');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(cors());
-
-mongoose.connect("mongodb://localhost/myapp", { useNewUrlParser: true });
-
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", function() {
-  console.log("Connected to MongoDB");
+// middleware functions
+app.use(express.urlencoded({ extended: false }));
+app.use(methodOverride('_method'));
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// routes
+const logsRoutes = require('./routes/logs');
+app.use('/logs', logsRoutes);
+
+// start server
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
 });
